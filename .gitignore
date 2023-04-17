@@ -1,9 +1,0 @@
-.idea
-
-img/*
-!img/README
-
-misc/*
-!misc/README
-
-doc/*

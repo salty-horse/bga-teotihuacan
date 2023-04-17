@@ -1571,19 +1571,24 @@ class teotihuacan extends Table
         $worship_actions_discovery = (int)self::getGameStateValue('worship_actions_discovery');
 
         if ($worship_actions_discovery && $queueCount > 0) {
-            $description = clienttranslate('have to select a temple advance or may claim the discovery tile');
+            $description_myturn = clienttranslate('have to select a temple advance or may claim the discovery tile');
+            $description = clienttranslate('has to select a temple advance or may claim the discovery tile');
         } else if ($worship_actions_discovery && $queueCount <= 0) {
+            $description_myturn = clienttranslate('may claim the discovery tile');
             $description = clienttranslate('may claim the discovery tile');
         } else if (!$worship_actions_discovery && $queueCount > 0) {
-            $description = clienttranslate('have to select a temple advance');
+            $description_myturn = clienttranslate('have to select a temple advance');
+            $description = clienttranslate('has to select a temple advance');
         } else {
-            $description = clienttranslate('have to choose the worship action');
+            $description_myturn = clienttranslate('have to choose the worship action');
+            $description = clienttranslate('has to choose the worship action');
         }
 
         return array(
             'queue' => $queue,
             'worship_actions_discovery' => self::getGameStateValue('worship_actions_discovery'),
             'worship_pos' => $worship_pos,
+            'description_myturn' => $description_myturn,
             'description' => $description,
             'royalTileAction' => $royalTileAction
         );

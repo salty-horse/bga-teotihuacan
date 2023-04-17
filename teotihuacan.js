@@ -1020,7 +1020,7 @@ define([
 
             setupOthers: function () {
                 for (var i = 0; i < 5; i++) {
-                    this.addTooltipHtml("ascension_" + i, this.gamedatas_local.ascensionInfo_data[i].tooltip);
+                    this.addTooltipHtml("ascension_" + i, _(this.gamedatas_local.ascensionInfo_data[i].tooltip));
                 }
                 this.showEclipseBanner();
                 this.setPyramidZoom();
@@ -3301,7 +3301,7 @@ define([
             },
 
             getDiscoveryTileTooltip: function (id) {
-                var tooltip = this.gamedatas_local.discoveryTiles_data[id].tooltip;
+                var tooltip = _(this.gamedatas_local.discoveryTiles_data[id].tooltip);
 
                 tooltip = tooltip.replace(/{token_vp}/g, this.getTokenSymbol('vp', true));
 
@@ -3335,7 +3335,7 @@ define([
 
                 var tooltip = '';
                 for (var i = 0; i < this.gamedatas_local.actionBoards_data[id].tooltip.length; i++) {
-                    tooltip += ' ' + this.gamedatas_local.actionBoards_data[id].tooltip[i];
+                    tooltip += ' ' + _(this.gamedatas_local.actionBoards_data[id].tooltip[i]);
                 }
 
                 tooltip = tooltip.replace('{token_temple_blue}', this.getTokenSymbol('temple_blue', true));
@@ -3351,7 +3351,7 @@ define([
             },
 
             getRoyalTileTooltip: function (id) {
-                var tooltip = this.gamedatas_local.royalTiles_data[id].tooltip;
+                var tooltip = _(this.gamedatas_local.royalTiles_data[id].tooltip);
 
                 tooltip = tooltip.replace(/{token_vp}/g, this.getTokenSymbol('vp', true));
 
@@ -3359,14 +3359,14 @@ define([
             },
 
             getTempleBonusTileTooltip: function (id) {
-                var tooltip = this.gamedatas_local.templeBonusTiles_data[id].tooltip;
+                var tooltip = _(this.gamedatas_local.templeBonusTiles_data[id].tooltip);
 
                 tooltip = tooltip.replace(/{token_vp}/g, this.getTokenSymbol('vp', true));
 
                 return tooltip;
             },
             getTechnologyTileTooltip: function (id) {
-                var tooltip = this.gamedatas_local.technologyTiles_data[id].tooltip;
+                var tooltip = _(this.gamedatas_local.technologyTiles_data[id].tooltip);
 
                 tooltip = tooltip.replace('{token_gold}', this.getTokenSymbol('gold', true));
                 tooltip = tooltip.replace(/{token_vp}/g, this.getTokenSymbol('vp', true));
@@ -3379,7 +3379,7 @@ define([
             },
 
             getStartingTileTooltip: function (id) {
-                var tooltip = this.gamedatas_local.startingTiles_data[id].tooltip;
+                var tooltip = _(this.gamedatas_local.startingTiles_data[id].tooltip);
 
                 var board0 = this.gamedatas_local.startingTiles_data[id].board[0];
                 tooltip = tooltip.replace('{board0}', '<div class="board_color board_color_' + board0 + '">' + board0 + '</div>');
