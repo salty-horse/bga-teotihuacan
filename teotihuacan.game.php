@@ -313,41 +313,17 @@ class teotihuacan extends Table
         $this->cards->createCards($cards, 'techTiles_deck');
 
         if ($this->isRandomSetup()) {
-            $this->cards->pickCardsForLocation(5, 'techTiles_deck', 'techTiles_row2');
-            $this->cards->shuffle('techTiles_deck');
-            $this->cards->shuffle('techTiles_row2');
-
-            $exclude = random_int(0, 3);
-
-            $row = 1;
-            for ($i = 0; $i < 4; $i++) {
-                if ($i != $exclude) {
-                    self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c$row' WHERE card_type = 'technologyTiles' AND card_type_arg = $i");
-                    $row = $row + 1;
-                }
-            }
-
-            $exclude1 = random_int(4, 8);
-
-            do {
-                $exclude2 = random_int(4, 8);
-            } while ($exclude1 == $exclude2);
-
-            $row = 1;
-            for ($i = 4; $i < 9; $i++) {
-                if ($i != $exclude1 && $i != $exclude2) {
-                    self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c$row' WHERE card_type = 'technologyTiles' AND card_type_arg = $i");
-                    $row = $row + 1;
-                }
-            }
+            $tiles = array_rand($this->technologyTiles, 6);
+            asort($tiles);  // Not really needed, since the tiles are already sorted in the materials file, and array_rand returns them in order.
         } else {
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c1' WHERE card_type = 'technologyTiles' AND card_type_arg = 0");
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c2' WHERE card_type = 'technologyTiles' AND card_type_arg = 1");
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c3' WHERE card_type = 'technologyTiles' AND card_type_arg = 2");
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c1' WHERE card_type = 'technologyTiles' AND card_type_arg = 4");
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c2' WHERE card_type = 'technologyTiles' AND card_type_arg = 7");
-            self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c3' WHERE card_type = 'technologyTiles' AND card_type_arg = 8");
+            $tiles = [0, 1, 2, 4, 7, 8];
         }
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c1' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[0]");
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c2' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[1]");
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r1_c3' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[2]");
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c1' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[3]");
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c2' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[4]");
+        self::DbQuery("UPDATE `card` SET card_location  = 'techTiles_r2_c3' WHERE card_type = 'technologyTiles' AND card_type_arg = $tiles[5]");
 
         // Create royal tiles
         $cards = array();
@@ -363,16 +339,15 @@ class teotihuacan extends Table
             $setA = $a[random_int(0, 2)];
             $setB = $b[random_int(0, 2)];
             $setC = $c[random_int(0, 2)];
-
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles0' WHERE card_type = 'royalTiles' AND card_type_arg = $setA");
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles1' WHERE card_type = 'royalTiles' AND card_type_arg = $setB");
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles2' WHERE card_type = 'royalTiles' AND card_type_arg = $setC");
         } else {
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles0' WHERE card_type = 'royalTiles' AND card_type_arg = 0");
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles1' WHERE card_type = 'royalTiles' AND card_type_arg = 5");
-            self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles2' WHERE card_type = 'royalTiles' AND card_type_arg = 3");
+            $setA = 3;
+            $setB = 5;
+            $setC = 0;
         }
 
+        self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles0' WHERE card_type = 'royalTiles' AND card_type_arg = $setA");
+        self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles1' WHERE card_type = 'royalTiles' AND card_type_arg = $setB");
+        self::DbQuery("UPDATE `card` SET card_location  = 'royalTiles2' WHERE card_type = 'royalTiles' AND card_type_arg = $setC");
         // Create temple bonus tiles
         $cards = array();
         foreach ($this->templeBonusTiles as $key => $item) {
@@ -1998,7 +1973,7 @@ class teotihuacan extends Table
 
         $aquiredTechnologyTile = self::getGameStateValue('aquiredTechnologyTile');
 
-        if ($location == 'techTiles_deck' || $location == 'techTiles_row2' || $type_arg == $aquiredTechnologyTile) {
+        if ($location == 'techTiles_deck' || $type_arg == $aquiredTechnologyTile) {
             return false;
         }
         $sql = "SELECT `$location` FROM `player` WHERE `player_id` = $player_id";
@@ -2352,18 +2327,12 @@ class teotihuacan extends Table
             if ($technologyMax > 0) {
                 self::setGameStateValue('startingTileBonus', 4);
 
-                $sql = "SELECT `card_location` FROM `card` WHERE `card_type` = 'technologyTiles' AND `card_type_arg` = 0";
-                $location = self::getUniqueValueFromDB($sql);
+                // Gain the first tech tile on the board
+                $location = 'techTiles_r1_c1';
 
-                if ($location == 'techTiles_deck' || $location == 'techTiles_row2') {
-                    $sql = "SELECT `card_location` FROM `card` WHERE `card_type` = 'technologyTiles' AND `card_type_arg` = 1";
-                    $location = self::getUniqueValueFromDB($sql);
-                    $sql = "UPDATE `player` SET `$location`  = 1 WHERE player_id = $player_id";
-                    self::DbQuery($sql);
-                } else {
-                    $sql = "UPDATE `player` SET `$location`  = 1 WHERE player_id = $player_id";
-                    self::DbQuery($sql);
-                }
+                $sql = "UPDATE `player` SET `$location`  = 1 WHERE player_id = $player_id";
+                self::DbQuery($sql);
+
                 self::notifyAllPlayers("acquireTechnology", clienttranslate('${player_name} acquired a Technology'), array(
                     'player_id' => $player_id,
                     'player_name' => self::getActivePlayerName(),
@@ -2373,13 +2342,8 @@ class teotihuacan extends Table
                 $eclipse = (int)self::getGameStateValue('eclipse');
                 self::incStat(1, "aquiredTechnology_eclipse$eclipse", $player_id);
 
-                if ($location == 'techTiles_r1_c1' || $location == 'techTiles_r2_c1') {
-                    $sql = "INSERT INTO `temple_queue`(`queue`, `referrer`) VALUES ('temple_blue',1)";
-                } else if ($location == 'techTiles_r1_c2' || $location == 'techTiles_r2_c2') {
-                    $sql = "INSERT INTO `temple_queue`(`queue`, `referrer`) VALUES ('temple_red',1)";
-                } else if ($location == 'techTiles_r1_c3' || $location == 'techTiles_r2_c3') {
-                    $sql = "INSERT INTO `temple_queue`(`queue`, `referrer`) VALUES ('temple_green',1)";
-                }
+                // The first tech tile is always blue
+                $sql = "INSERT INTO `temple_queue`(`queue`, `referrer`) VALUES ('temple_blue',1)";
                 self::DbQuery($sql);
 
                 $this->gamestate->nextState("action");
