@@ -7541,15 +7541,8 @@ class teotihuacan extends Table
         //all checks done
         self::setGameStateValue('aquiredTechnologyTile', $id);
 
-        if (
-            $location == 'techTiles_r2_c1' ||
-            $location == 'techTiles_r2_c2' ||
-            $location == 'techTiles_r2_c3'
-        ) {
-            $this->payResource($player_id, -2, 'gold', $target);
-        } else {
-            $this->payResource($player_id, -1, 'gold', $target);
-        }
+        $goldCost = $this->technologyTiles[$id]['price']['gold'];
+        $this->payResource($player_id, -$goldCost, 'gold', $target);
 
         $sql = "UPDATE `player` SET `$location`  = 1 WHERE player_id = $player_id";
         self::DbQuery($sql);
