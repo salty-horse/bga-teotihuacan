@@ -3525,50 +3525,42 @@ class teotihuacan extends Table
         $countWorkers = (int) self::getUniqueValueFromDB($sql);
 
         if ($card_id == 5) {
-            $techTiles_r1_c1 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r1_c1` FROM `player` WHERE `player_id` = $player_id"
-            );
-            $techTiles_r1_c2 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r1_c2` FROM `player` WHERE `player_id` = $player_id"
-            );
-            $techTiles_r1_c3 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r1_c3` FROM `player` WHERE `player_id` = $player_id"
-            );
-            $techTiles_r2_c1 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r2_c1` FROM `player` WHERE `player_id` = $player_id"
-            );
-            $techTiles_r2_c2 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r2_c2` FROM `player` WHERE `player_id` = $player_id"
-            );
-            $techTiles_r2_c3 = (int) self::getUniqueValueFromDB(
-                $sql = "SELECT `techTiles_r2_c3` FROM `player` WHERE `player_id` = $player_id"
-            );
+            $sql = "SELECT `techTiles_r1_c1` r1_c1," .
+                          "`techTiles_r1_c2` r1_c2," .
+                          "`techTiles_r1_c3` r1_c3," .
+                          "`techTiles_r2_c1` r2_c1," .
+                          "`techTiles_r2_c2` r2_c2," .
+                          "`techTiles_r2_c3` r2_c3 " .
+                   "FROM `player` WHERE `player_id` = $player_id";
+            $owned_techs = self::getObjectFromDB($sql);
 
-            if (
-                $techTiles_r1_c1 &&
-                $techTiles_r1_c2 &&
-                $techTiles_r1_c3 &&
-                $techTiles_r2_c1 &&
-                $techTiles_r2_c2 &&
-                $techTiles_r2_c3
-            ) {
+            $tech_costs = [];
+            foreach (['r1_c1', 'r1_c2', 'r1_c3', 'r2_c1', 'r2_c2', 'r2_c3'] as $tech_pos) {
+                $tech_id = $this->cards->getCardOnTop('techTiles_'.$tech_pos)['type_arg'];
+                $tech_costs[$tech_pos] = $this->technologyTiles[$tech_id]['price']['gold'];
+            }
+
+            if (!in_array(0, $owned_techs)) {
                 throw new BgaUserException(
                     self::_('You already aquired all technologies.')
                 );
-            } elseif (
-                $techTiles_r1_c1 &&
-                $techTiles_r1_c2 &&
-                $techTiles_r1_c3
-            ) {
-                $this->updateGold(
-                    -2,
-                    false,
-                    null,
-                    clienttranslate(
-                        'You do not have enough gold for the main action.'
-                    )
-                );
+            }
 
+            $sql = "SELECT `gold` FROM `player` WHERE `player_id` = $player_id";
+            $player_gold = (int)self::getUniqueValueFromDB($sql);
+
+            if ($player_gold == 0) {
+                throw new BgaUserException(
+                    self::_('You do not have enough gold for the main action.')
+                );
+            }
+
+            // If player can't buy any row 1 techs...
+            if (($owned_techs['r1_c1'] || $tech_costs['r1_c1'] > $player_gold) &&
+                ($owned_techs['r1_c2'] || $tech_costs['r1_c2'] > $player_gold) &&
+                ($owned_techs['r1_c3'] || $tech_costs['r1_c3'] > $player_gold)) {
+
+                // Check if row 2 is accessible
                 $worker_power = (int) self::getUniqueValueFromDB(
                     "SELECT `worker_power` FROM `map` WHERE `player_id` = $player_id AND `worker_id`=$selected_worker_id"
                 );
@@ -3594,15 +3586,15 @@ class teotihuacan extends Table
                         self::_('This move is not possible.')
                     );
                 }
-            } else {
-                $this->updateGold(
-                    -1,
-                    false,
-                    null,
-                    clienttranslate(
-                        'You do not have enough gold for the main action.'
-                    )
-                );
+
+                // Row 2 is accessible. Check if any techs can be bought
+                if (($owned_techs['r2_c1'] || $tech_costs['r2_c1'] > $player_gold) &&
+                    ($owned_techs['r2_c2'] || $tech_costs['r2_c2'] > $player_gold) &&
+                    ($owned_techs['r2_c3'] || $tech_costs['r2_c3'] > $player_gold)) {
+                    throw new BgaUserException(
+                        self::_('You do not have enough gold for the main action.')
+                    );
+                }
             }
         } elseif ($card_id == 6) {
             $this->updateWood(
