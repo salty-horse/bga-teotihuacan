@@ -405,35 +405,9 @@ define([
                             this.addTooltipHtml("discoveryTile_" + discoveryTile.type_arg, this.getDiscoveryTileTooltip(discoveryTile.type_arg));
                         }
                     } else if (board.card_id == "5") {
-                        var technologyTiles = this.gamedatas_local.technologyTiles.r1_c1;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r1_c1');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
-                        }
-                        technologyTiles = this.gamedatas_local.technologyTiles.r1_c2;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r1_c2');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
-                        }
-                        technologyTiles = this.gamedatas_local.technologyTiles.r1_c3;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r1_c3');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
-                        }
-                        technologyTiles = this.gamedatas_local.technologyTiles.r2_c1;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r2_c1');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
-                        }
-                        technologyTiles = this.gamedatas_local.technologyTiles.r2_c2;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r2_c2');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
-                        }
-                        technologyTiles = this.gamedatas_local.technologyTiles.r2_c3;
-                        for (var j in technologyTiles) {
-                            dojo.place(this.format_block('jstpl_technologyTiles', technologyTiles[j]), 'r2_c3');
-                            this.addTooltipHtml("technologyTile_" + technologyTiles[j].type_arg, this.getTechnologyTileTooltip(technologyTiles[j].type_arg));
+                        for (let [techPosition, tile] of Object.entries(this.gamedatas_local.technologyTiles)) {
+                            dojo.place(this.format_block('jstpl_technologyTiles', tile), techPosition);
+                            this.addTooltipHtml("technologyTile_" + tile.type_arg, this.getTechnologyTileTooltip(tile.type_arg));
                         }
                     } else if (board.card_id == "6") {
                         var row1 = parseInt(this.gamedatas_local.global.row1);
@@ -663,53 +637,22 @@ define([
                     }), target);
 
                     // TECHNOLOGY TILES
-                    if (player.techTiles_r1_c1 != "0") {
-                        var location = 'techTiles_r1_c1';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
-                    }
-                    if (player.techTiles_r1_c2 != "0") {
-                        var location = 'techTiles_r1_c2';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
-                    }
-                    if (player.techTiles_r1_c3 != "0") {
-                        var location = 'techTiles_r1_c3';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
-                    }
-                    if (player.techTiles_r2_c1 != "0") {
-                        var location = 'techTiles_r2_c1';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
-                    }
-                    if (player.techTiles_r2_c2 != "0") {
-                        var location = 'techTiles_r2_c2';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
-                    }
-                    if (player.techTiles_r2_c3 != "0") {
-                        var location = 'techTiles_r2_c3';
-                        var id = location + "_marker_" + player_id;
-                        dojo.place(this.format_block('jstpl_markerOntable', {
-                            id: id,
-                            player_color: player.player_color,
-                        }), location + '_markers');
+                    const TILE_LOCATIONS = [
+                        'techTiles_r1_c1',
+                        'techTiles_r1_c2',
+                        'techTiles_r1_c3',
+                        'techTiles_r2_c1',
+                        'techTiles_r2_c2',
+                        'techTiles_r2_c3',
+                    ];
+                    for (let location of TILE_LOCATIONS) {
+                        if (player[location] != "0") {
+                            var id = location + "_marker_" + player_id;
+                            dojo.place(this.format_block('jstpl_markerOntable', {
+                                id: id,
+                                player_color: player.player_color,
+                            }), location + '_markers');
+                        }
                     }
 
                     // PYRAMID TRACK
@@ -1194,13 +1137,28 @@ define([
                             this.tradeConfirm();
                             break;
                         case 'playerTurn_alchemy':
-                            dojo.query('#r1_c1 .technologyTile').addClass('clickable');
-                            dojo.query('#r1_c2 .technologyTile').addClass('clickable');
-                            dojo.query('#r1_c3 .technologyTile').addClass('clickable');
+                            let tech_positions = ['r1_c1', 'r1_c2', 'r1_c3'];
                             if (args.args.row == 2) {
-                                dojo.query('#r2_c1 .technologyTile').addClass('clickable');
-                                dojo.query('#r2_c2 .technologyTile').addClass('clickable');
-                                dojo.query('#r2_c3 .technologyTile').addClass('clickable');
+                                tech_positions.push('r2_c1');
+                                tech_positions.push('r2_c2');
+                                tech_positions.push('r2_c3');
+                            }
+
+                            let player_data = this.gamedatas_local.players[player_id];
+                            for (let tech_pos of tech_positions) {
+                                // Player already has the tech
+                                if (player_data[`techTiles_${tech_pos}`] != "0") {
+                                    continue;
+                                }
+
+                                // Player doesn't have enough gold
+                                let tile_id = this.gamedatas_local.technologyTiles[tech_pos].type_arg;
+                                let gold_cost = this.gamedatas_local.technologyTiles_data[tile_id].price.gold;
+                                if (gold_cost > player_data.gold) {
+                                    continue;
+                                }
+
+                                dojo.query(`#${tech_pos} .technologyTile`).addClass('clickable');
                             }
                             break;
                         case 'playerTurn_construction':
@@ -4349,6 +4307,7 @@ define([
                 var player = this.gamedatas_local.players[player_id];
                 var target = location + '_markers';
                 var id = location + "_marker_" + player_id;
+                player[location] = 1;
                 dojo.place(this.format_block('jstpl_markerOntable', {
                     id: id,
                     player_color: player.player_color,

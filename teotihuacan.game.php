@@ -842,12 +842,12 @@ class teotihuacan extends Table
         $result['discoveryTiles_data'] = $this->discoveryTiles;
 
         $technologyTiles = [
-            'r1_c1' => $this->cards->getCardsInLocation('techTiles_r1_c1'),
-            'r1_c2' => $this->cards->getCardsInLocation('techTiles_r1_c2'),
-            'r1_c3' => $this->cards->getCardsInLocation('techTiles_r1_c3'),
-            'r2_c1' => $this->cards->getCardsInLocation('techTiles_r2_c1'),
-            'r2_c2' => $this->cards->getCardsInLocation('techTiles_r2_c2'),
-            'r2_c3' => $this->cards->getCardsInLocation('techTiles_r2_c3'),
+            'r1_c1' => $this->cards->getCardOnTop('techTiles_r1_c1'),
+            'r1_c2' => $this->cards->getCardOnTop('techTiles_r1_c2'),
+            'r1_c3' => $this->cards->getCardOnTop('techTiles_r1_c3'),
+            'r2_c1' => $this->cards->getCardOnTop('techTiles_r2_c1'),
+            'r2_c2' => $this->cards->getCardOnTop('techTiles_r2_c2'),
+            'r2_c3' => $this->cards->getCardOnTop('techTiles_r2_c3'),
         ];
 
         $result['technologyTiles'] = $technologyTiles;
