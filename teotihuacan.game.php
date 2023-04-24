@@ -3399,6 +3399,43 @@ class teotihuacan extends Table
         self::incStat(1, "temple_$temple", $player_id);
     }
 
+    function stepPyramidTrack($player_id)
+    {
+        $sql = "SELECT `pyramid_track` FROM `player` WHERE `player_id` = $player_id";
+        $step = (int) self::getUniqueValueFromDB($sql);
+
+        if ($step < 10) {
+            $sql = "UPDATE `player` SET `pyramid_track`  = `pyramid_track` + 1 WHERE player_id = $player_id";
+            self::DbQuery($sql);
+
+            $step++;
+
+            self::notifyAllPlayers(
+                'stepPyramidTrack',
+                clienttranslate(
+                    '${player_name} advanced one space on Pyramid track'
+                ),
+                [
+                    'player_id' => $player_id,
+                    'player_name' => self::getActivePlayerName(),
+                    'step' => $step,
+                ]
+            );
+
+            $eclipse = (int) self::getGameStateValue('eclipse');
+            self::incStat(1, "steps_on_pyramid_track_round$eclipse", $player_id);
+        } else {
+            self::notifyAllPlayers(
+                'messageOnly',
+                clienttranslate('${player_name} stays on top of pyramid track'),
+                [
+                    'player_id' => $player_id,
+                    'player_name' => self::getActivePlayerName(),
+                ]
+            );
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     ////////////
@@ -7849,44 +7886,7 @@ class teotihuacan extends Table
             $countWorkers++;
         }
 
-        $sql = "SELECT `pyramid_track` FROM `player` WHERE `player_id` = $player_id";
-        $step = (int) self::getUniqueValueFromDB($sql);
-
-        if ($step < 9) {
-            $sql = "UPDATE `player` SET `pyramid_track`  = `pyramid_track` + 1 WHERE player_id = $player_id";
-            self::DbQuery($sql);
-
-            $sql = "SELECT `pyramid_track` FROM `player` WHERE `player_id` = $player_id";
-            $step = (int) self::getUniqueValueFromDB($sql);
-
-            self::notifyAllPlayers(
-                'stepPyramidTrack',
-                clienttranslate(
-                    '${player_name} advanced one space on Pyramid track'
-                ),
-                [
-                    'player_id' => $player_id,
-                    'player_name' => self::getActivePlayerName(),
-                    'step' => $step,
-                ]
-            );
-
-            $eclipse = (int) self::getGameStateValue('eclipse');
-            self::incStat(
-                1,
-                "steps_on_pyramid_track_round$eclipse",
-                $player_id
-            );
-        } else {
-            self::notifyAllPlayers(
-                'messageOnly',
-                clienttranslate('${player_name} stays on top of pyramid track'),
-                [
-                    'player_id' => $player_id,
-                    'player_name' => self::getActivePlayerName(),
-                ]
-            );
-        }
+        self::stepPyramidTrack($player_id);
 
         if ($level == 3) {
             $black = (int) self::getGameStateValue('eclipseDiscBlack');
@@ -8389,31 +8389,7 @@ class teotihuacan extends Table
             );
         }
 
-        $sql = "SELECT `pyramid_track` FROM `player` WHERE `player_id` = $player_id";
-        $step = (int) self::getUniqueValueFromDB($sql);
-
-        if ($step < 9) {
-            $sql = "UPDATE `player` SET `pyramid_track`  = `pyramid_track` + 1 WHERE player_id = $player_id";
-            self::DbQuery($sql);
-        }
-
-        $sql = "SELECT `pyramid_track` FROM `player` WHERE `player_id` = $player_id";
-        $step = (int) self::getUniqueValueFromDB($sql);
-
-        self::notifyAllPlayers(
-            'stepPyramidTrack',
-            clienttranslate(
-                '${player_name} advanced one space on Pyramid track'
-            ),
-            [
-                'player_id' => $player_id,
-                'player_name' => self::getActivePlayerName(),
-                'step' => $step,
-            ]
-        );
-
-        $eclipse = (int) self::getGameStateValue('eclipse');
-        self::incStat(1, "steps_on_pyramid_track_round$eclipse", $player_id);
+        self::stepPyramidTrack($player_id);
 
         self::setGameStateValue('isDecoration', 1);
         self::incGameStateValue('upgradeWorkers', 1);
